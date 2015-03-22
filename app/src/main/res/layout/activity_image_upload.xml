@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:padding="@dimen/activity_horizontal_margin"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/image_layout"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:padding="2dp"
+        android:layout_margin="@dimen/activity_view_margin"
+        android:background="@drawable/background_dashed_border">
+
+        <ImageView
+            android:id="@+id/iv_pic"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true" />
+
+        <ProgressBar
+            android:id="@+id/pb_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_location_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/image_layout"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin" />
+
+    <TextView
+        android:id="@+id/tv_address"
+        android:layout_below="@+id/tv_location_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:id="@+id/btn_update"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:text="Update"
+            android:layout_alignParentLeft="true" />
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:text="Cancel"
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
+</RelativeLayout>
