@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -71,8 +70,11 @@ public class MainActivity extends ActionBarActivity {
             FetchAndSaveDataService.ServiceBinder binder = (FetchAndSaveDataService.ServiceBinder) iBinder;
             fetchAndSaveDataService = binder.getService();
             isServiceConnected = true;
-            if(itemDetails == null) {
-                itemDetails = fetchAndSaveDataService.getItems();
+            if (itemDetails.size() == 0) {
+                List<ItemDetail> savedItems = fetchAndSaveDataService.getItems();
+                if (savedItems != null) {
+                    itemDetails.addAll(fetchAndSaveDataService.getItems());
+                }
                 adapter.notifyDataSetChanged();
             }
         }
@@ -118,9 +120,7 @@ public class MainActivity extends ActionBarActivity {
                 ItemDetail itemDetail = (ItemDetail) data.getExtras().get("data");
                 itemDetails.add(0, itemDetail);
                 adapter.notifyDataSetChanged();
-                if (fetchAndSaveDataService != null) {
-                    fetchAndSaveDataService.saveAllItems(itemDetails);
-                }
+                fetchAndSaveDataService.saveAllItems(itemDetails);
             }
         }
     }
