@@ -59,9 +59,9 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onResume() {
-        super.onResume();
         Intent intent = new Intent(this, FetchAndSaveDataService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
+        super.onResume();
     }
 
     ServiceConnection connection = new ServiceConnection() {

@@ -28,10 +28,12 @@
     </RelativeLayout>
 
     <TextView
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
         android:id="@+id/tv_location_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/image_layout"
+        android:text="Latitude: Loading... Longitude: Loading..."
         android:layout_marginLeft="@dimen/activity_horizontal_margin" />
 
     <TextView
@@ -39,6 +41,7 @@
         android:layout_below="@+id/tv_location_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Address: Loading..."
         android:layout_marginLeft="@dimen/activity_horizontal_margin" />
 
     <RelativeLayout

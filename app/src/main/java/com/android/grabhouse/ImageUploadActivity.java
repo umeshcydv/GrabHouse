@@ -7,9 +7,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -60,6 +63,9 @@ public class ImageUploadActivity extends ActionBarActivity {
     public final String ACCEPT = "application/json; charset=utf-8";
     public final String CONTENT_TYPE = "application/json; charset=utf-8";
     public final String ACCEPT_LANGUAGE = "en-US,en;q=0.5";
+    private final int SET_LOCATION_DETAIL = 101;
+    private final int OPEN_SETTING_POPUP = 102;
+
 
     private String latitude = "";
     private String longitude = "";
@@ -81,13 +87,13 @@ public class ImageUploadActivity extends ActionBarActivity {
 
     @Override
     protected void onStart() {
-        Intent intent = new Intent(this, GPSTracker.class);
-        bindService(intent, connection, Context.BIND_AUTO_CREATE);
         super.onStart();
     }
 
     @Override
     protected void onResume() {
+        Intent intent = new Intent(this, GPSTracker.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
         super.onResume();
     }
 
@@ -106,6 +112,7 @@ public class ImageUploadActivity extends ActionBarActivity {
         file = new File(path);
         FileOutputStream fos = null;
         try {
+            file.createNewFile();
             fos = new FileOutputStream(file);
             photo.compress(Bitmap.CompressFormat.PNG, 85, fos);
             fos.close();
@@ -115,7 +122,6 @@ public class ImageUploadActivity extends ActionBarActivity {
         } catch (IOException e) {
 
         }
-
         mUploadPic.setImageBitmap(photo);
     }
 
@@ -125,7 +131,7 @@ public class ImageUploadActivity extends ActionBarActivity {
             GPSTracker.LocationServiceBinder binder = (GPSTracker.LocationServiceBinder) iBinder;
             gpsTracker = binder.getService();
             serviceConnected = true;
-            getLocationAndAddress();
+            handleLoadingImageWithMessagesHandler();
         }
 
         @Override
@@ -135,21 +141,48 @@ public class ImageUploadActivity extends ActionBarActivity {
         }
     };
 
-    private void getLocationAndAddress() {
-        if (gpsTracker.canGetLocation()) {
-            latitude = String.valueOf(decimalFormat.format(gpsTracker.getLatitude()));
-            longitude = String.valueOf(decimalFormat.format(gpsTracker.getLongitude()));
-            address = gpsTracker.getAddressLine(getApplicationContext()) + ", " + gpsTracker.getLocality(getApplicationContext());
-            mLocationInfo.setText(String.format("Latitude: %s, Longitude: %s", latitude, longitude));
-            mAddress.setText("Address: " + address);
+    private void handleLoadingImageWithMessagesHandler() {
+        final Handler handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case SET_LOCATION_DETAIL:
+                        getLocationAndAddress();
+                        break;
+                    case OPEN_SETTING_POPUP:
+                        showSettingsAlert();
+                        break;
+                }
+            }
+        };
 
-        } else {
-            showSettingsAlert();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (gpsTracker.canGetLocation()) {
+                    Location location = null;
+                    while (location == null) {
+                        location = gpsTracker.getLocation();
+                    }
+                    handler.sendEmptyMessage(SET_LOCATION_DETAIL);
+                } else {
+                    handler.sendEmptyMessage(OPEN_SETTING_POPUP);
+                }
+            }
+        }).start();
+
+    }
+
+    private void getLocationAndAddress() {
+        latitude = String.valueOf(decimalFormat.format(gpsTracker.getLatitude()));
+        longitude = String.valueOf(decimalFormat.format(gpsTracker.getLongitude()));
+        address = gpsTracker.getAddressLine(getApplicationContext()) + ", " + gpsTracker.getLocality(getApplicationContext());
+        mLocationInfo.setText(String.format("Latitude: %s, Longitude: %s", latitude, longitude));
+        mAddress.setText("Address: " + address);
     }
 
     private void showSettingsAlert() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Enable GPS");
         alertDialog.setMessage("Please Enable Location Service.");
         alertDialog.setPositiveButton("Setting", new DialogInterface.OnClickListener() {
